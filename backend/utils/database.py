@@ -41,7 +41,8 @@ def get_prompt_guide_db(id):
     #         correct_entries.append(temp_dict)
 
 
-def update_record_or_add(prompt_guide):
+def update_record_or_add(pg):
+    prompt_guide = pg.model_dump()
     id = prompt_guide.get("id") if prompt_guide.get("id") else None
     doc_ref = db.collection(DATABASE_NAME).document(id)
     print(doc_ref.id, prompt_guide)
