@@ -1,8 +1,16 @@
+# .github/workflows/my-workflow.yaml
 on: push
+permissions:
+  contents: read
+  id-token: write
 jobs:
   my-job:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: glcoud auth configure-docker us-east4-docker.pkg.dev
+      - run: gcloud auth configure-docker us-east4-docker.pkg.dev
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/175298940333/locations/global/workloadIdentityPools/github/providers/github"
+          service_account: "github-actions@cp-sandbox-joseph-jeff705.iam.gserviceaccount.com"
       - run: ./deploy.sh
