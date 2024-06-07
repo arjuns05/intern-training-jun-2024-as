@@ -4,4 +4,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: glcoud auth configure-docker us-east4-docker.pkg.dev
       - run: ./deploy.sh
