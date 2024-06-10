@@ -23,6 +23,6 @@ gcloud run deploy "$SERVICE" \
  --network=default \
  --subnet=default \
  --vpc-egress all-traffic \
- --set-env-vars OPENAI_API_URL=https://external.api.dev.ai-hub.colpal.cloud \
+ --set-env-vars OPENAI_API_URL=https://external.api.dev.ai-hub.colpal.cloud/openai/v1 \
  --ingress internal-and-cloud-load-balancing \
  --port 8000
