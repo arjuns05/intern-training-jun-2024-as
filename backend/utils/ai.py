@@ -5,7 +5,7 @@ from utils.secret import get_secret
 
 secret = get_secret("secret/data/teams/intern-training/openai")
 OPENAI_API_KEY = secret["apikey"]
-base_url = os.getenv("OPENAI_BASE_URL", "https://api.dev.ai-hub.colpal.cloud/openai/v1")
+base_url = os.getenv("OPENAI_API_URL", "https://api.dev.ai-hub.colpal.cloud/openai/v1")
 
 
 client = OpenAI(api_key=OPENAI_API_KEY, base_url=base_url)
