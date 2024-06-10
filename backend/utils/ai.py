@@ -8,11 +8,7 @@ OPENAI_API_KEY = secret["apikey"]
 base_url = os.getenv("OPENAI_BASE_URL", "https://api.dev.ai-hub.colpal.cloud/openai/v1")
 
 
-if not OPENAI_API_KEY:
-    raise Exception("OPENAI_API_KEY is not set")
-client = OpenAI(
-    api_key=OPENAI_API_KEY, base_url="https://api.dev.ai-hub.colpal.cloud/openai/v1"
-)
+client = OpenAI(api_key=OPENAI_API_KEY, base_url=base_url)
 
 
 def send_ai_message(message):
