@@ -64,7 +64,9 @@ def get_secret(path):
         # "X-Vault-Token" header. Our headers still include the IAP-bound
         # "Authorization" header.
         headers.update(
-            ("X-Vault-Token", login_response.json()["auth"]["client_token"]),
+            [
+                ("X-Vault-Token", login_response.json()["auth"]["client_token"]),
+            ]
         )
     # Regardless of the method used to arrive to the proper Vault address and
     # token, requesting a secret involves submitting a simple GET request to
