@@ -8,3 +8,5 @@ python -m venv .venv
 source .venv/bin/activate
 
 uvicorn command to run fastAPI server: uvicorn main:app --reload
+
+stopping a process on a port: lsof -ti:8000
