@@ -85,6 +85,33 @@ function Clock() {
   );
 }
 
+async function getJoke() {
+  let jokeText = 'No joke for you!';
+  try {
+    const joke = await fetch('https://icanhazdadjoke.com/', { headers: { Accept: 'text/plain' } });
+    jokeText = await joke.text();
+    console.log(jokeText);
+  } catch {
+    console.log("Something's wrong!");
+  }
+  return jokeText;
+}
+function Joke() {
+  const [myJoke, setMyJoke] = useState('No Joke yet');
+
+  useEffect(() => {
+    async function fetchJoke() {
+      const j = await getJoke();
+      setMyJoke(j);
+    }
+    fetchJoke();
+  }, []);
+  return (
+    <p>
+      {myJoke}
+    </p>
+  );
+}
 function Home() {
   return (
     <div>
@@ -93,6 +120,7 @@ function Home() {
       <Greeter name="Arjun" />
       <Counter />
       <Clock />
+      <Joke />
     </div>
   );
 }
