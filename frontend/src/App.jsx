@@ -1,3 +1,6 @@
+import { useState } from 'react';
+
+
 import {
   BrowserRouter,
   Routes,
@@ -31,11 +34,40 @@ function NavBar() {
   );
 }
 
+function Greeter(props) {
+  return (
+    <h1>
+      Hello {props.name}
+    </h1>
+  )
+}
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  function increment() {
+    console.log(count)
+    setCount((c) => c + 1);
+    console.log(count)
+  }
+  return (
+    <>
+      <p>Counter = {count} </p>
+
+      <button onClick={increment}>
+        Add 1
+      </button>
+    </>
+  )
+
+}
 function Home() {
   return (
     <div>
       <h2>Home</h2>
       <NavBar />
+      <Greeter name="Arjun" />
+      <Counter>
+      </Counter>
     </div>
   );
 }
