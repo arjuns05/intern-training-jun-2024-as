@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-
 import {
   BrowserRouter,
   Routes,
@@ -34,49 +33,54 @@ function NavBar() {
   );
 }
 
-function Greeter(props) {
+function Greeter({ name }) {
   return (
     <h1>
-      Hello {props.name}
+      Hello
+      {' '}
+      {name}
     </h1>
-  )
+  );
 }
 
 function Counter() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
   function increment() {
-    console.log(count)
+    console.log(count);
     setCount((c) => c + 1);
-    console.log(count)
+    console.log(count);
   }
   return (
     <>
-      <p>Counter = {count} </p>
+      <p>
+        Counter =
+        {count}
+      </p>
 
-      <button onClick={increment}>
+      <button type="button" onClick={increment}>
         Add 1
       </button>
     </>
-  )
-
+  );
 }
 
 function Clock() {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
-
     const interval = setInterval(() => {
       setTime(new Date());
     }, 1000);
     return () => {
-
       clearInterval(interval);
     };
   }, []);
 
   return (
     <div>
-      <p>Time: {time.toLocaleTimeString()}</p>
+      <p>
+        Time:
+        {time.toLocaleTimeString()}
+      </p>
     </div>
   );
 }
@@ -87,8 +91,7 @@ function Home() {
       <h2>Home</h2>
       <NavBar />
       <Greeter name="Arjun" />
-      <Counter>
-      </Counter>
+      <Counter />
       <Clock />
     </div>
   );
