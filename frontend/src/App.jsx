@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Button } from 'antd'
+import React from 'react';
+import { DownOutlined, SmileOutlined } from '@ant-design/icons';
+import { Dropdown, Space } from 'antd';
+import { Select } from 'antd';
+import { Table } from "antd";
 
 import {
   BrowserRouter,
@@ -57,9 +63,9 @@ function Counter() {
         {count}
       </p>
 
-      <button type="button" onClick={increment}>
+      <Button type="primary" onClick={increment}>
         Add 1
-      </button>
+      </Button>
     </>
   );
 }
@@ -156,6 +162,8 @@ async function getPokemon(setMyPokemon) {
   // Save this data somewhere!
 }
 
+
+
 function Pokemon() {
   const [myPokemon, setMyPokemon] = useState({});
 
@@ -184,6 +192,17 @@ function Pokemon() {
 
 
 
+async function getPrompts(setPromptGuides) {
+
+  let prompts = await fetch('/api/prompt_guides');
+  let data = await prompts.json();
+  console.log(data.prompt_guides[0].prompts);
+  setPromptGuides(data.prompt_guides)
+
+
+}
+
+
 function Home() {
   return (
     <div>
@@ -206,14 +225,103 @@ function Guide() {
     </div>
   );
 }
+// async function onPromptGuideChange(value) {
+//   console.log(`selected ${value}`);
+//   let req = await fetch(`/api/prompt_guide?prompt_id=${String(value)}`);
+//   let data = await req.json()
+//   console.log(data)
 
+
+
+// };
+
+const columns = [
+  {
+    title: 'Description',
+    dataIndex: 'description',
+    key: 'description'
+
+
+  },
+  {
+    title: 'Tag',
+    dataIndex: 'tag',
+    key: 'tag'
+
+
+  },
+  {
+    title: 'Title',
+    dataIndex: 'title',
+    key: 'title'
+
+
+  },
+  {
+    title: 'Type',
+    dataIndex: 'type',
+    key: 'type'
+
+
+  },
+  {
+    title: 'Choices',
+    dataIndex: 'choices',
+    key: 'choices'
+
+
+  }
+]
 function Configuration() {
+
+  const [currentGuide, setCurrentGuide] = useState({ prompts: [] })
+  const [promptGuides, setPromptGuides] = useState([]);
+  useEffect(() => {
+    getPrompts(setPromptGuides)
+
+
+  }, []);
+
+  function onPromptGuideChange(value) {
+    console.log(`selected ${value}`);
+    const isValid = (promptGuide) => promptGuide.id === value;
+    promptGuides.findIndex(isValid);
+    console.log(promptGuides.findIndex(isValid))
+    console.log(promptGuides[promptGuides.findIndex(isValid)]);
+    setCurrentGuide(promptGuides[promptGuides.findIndex(isValid)])
+
+  }
+
   return (
     <div>
       <h2>Prompt Configuration</h2>
       <NavBar />
+
+      <Select
+        placeholder="Select a Guide"
+        style={{
+          width: 420,
+        }}
+        onChange={onPromptGuideChange}
+        options={promptGuides.map((pg) => ({ "value": pg.id, "label": pg.name }))}
+      />
+      {/* {
+        promptGuides[0] &&
+        (
+          <p>
+            {JSON.stringify(promptGuides)}
+          </p>
+        )
+      } */}
+
+      <br />
+      <p />
+      <Table dataSource={currentGuide.prompts} columns={columns} />
     </div>
+
   );
+
 }
+
 
 export default App;

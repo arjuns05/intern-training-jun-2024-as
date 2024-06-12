@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.get("/api/prompt_guides")
 def get_prompt_guides():
-    return {"prompt guides": get_prompt_guides_from_db()}
+    return {"prompt_guides": get_prompt_guides_from_db()}
