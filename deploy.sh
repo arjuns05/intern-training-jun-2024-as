@@ -13,7 +13,7 @@ REGISTRY=us-east4-docker.pkg.dev/cp-artifact-registry/intern-training
 SERVICE=aas
 IMAGE="$REGISTRY/$SERVICE"
 
-docker buildx build --platform linux/amd64 -t "$IMAGE" .
+docker buildx build --platform linux/amd64 -t "$IMAGE.
 docker push "$IMAGE"
 
 gcloud run deploy "$SERVICE" \

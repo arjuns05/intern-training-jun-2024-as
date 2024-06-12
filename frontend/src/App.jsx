@@ -96,6 +96,9 @@ async function getJoke() {
   }
   return jokeText;
 }
+
+
+
 function Joke() {
   const [myJoke, setMyJoke] = useState('No Joke yet');
 
@@ -112,6 +115,75 @@ function Joke() {
     </p>
   );
 }
+
+async function getPokemon(setMyPokemon) {
+  setMyPokemon({});
+
+
+
+
+
+  // Get the Pokedex's upper Pokemon limit
+  // Send a GET request to get the amount of Pokemon we have to work with.
+  // Data endpoint: https://pokeapi.co/api/v2/pokemon-species/?limit=0
+  // We will use this to generate a random number within the boundaries
+  let maxNumber = 0;
+  let details = null;
+
+  const allDataReq = await fetch('https://pokeapi.co/api/v2/pokemon-species/?limit=0');
+  const allData = await allDataReq.json();
+  console.log(allData.count);
+
+
+
+  // Send a new GET request to get information about that Pokemon.
+  // Data endpoint: https://pokeapi.co/api/v2/pokemon/{integer}
+  let pokemon = null;
+  let actualPokemon = null;
+  let actualNumber = Math.floor(Math.random() * allData.count);
+  console.log(actualNumber);
+  try {
+    pokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${actualNumber}`);
+    actualPokemon = await pokemon.json();
+    console.log(JSON.stringify(actualPokemon))
+  } catch (e) {
+    console.log("Something's wrong!" + e);
+  }
+  console.log(actualPokemon);
+  console.log(actualPokemon.sprites.back_default)
+
+  setMyPokemon(actualPokemon);
+  // Save this data somewhere!
+}
+
+function Pokemon() {
+  const [myPokemon, setMyPokemon] = useState({});
+
+  useEffect(() => {
+    getPokemon(setMyPokemon);
+  }, []);
+  console.log(myPokemon)
+
+
+  return (
+    <>
+      {/* Can we wait for the data fetch to complete before loading the content? */}
+      <div>
+        My randomly selected pokemon was {(myPokemon.name)} with a height of {JSON.stringify(myPokemon.height)}!
+      </div>
+      {myPokemon.sprites &&
+        (
+          <img
+            alt="image of Pokemon"
+            src={myPokemon.sprites.other['official-artwork'].front_default} />
+        )}
+
+    </>
+  );
+}
+
+
+
 function Home() {
   return (
     <div>
@@ -121,6 +193,7 @@ function Home() {
       <Counter />
       <Clock />
       <Joke />
+      <Pokemon />
     </div>
   );
 }
