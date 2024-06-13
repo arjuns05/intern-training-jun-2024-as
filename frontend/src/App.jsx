@@ -235,6 +235,7 @@ function Guide() {
 
 
 
+
 // };
 
 
@@ -254,7 +255,10 @@ function Configuration() {
   const [promptGuides, setPromptGuides] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editPrompt, setEditPrompt] = useState({})
-  const [promptForm] = Form.useForm()
+  const [promptForm] = Form.useForm();
+  const [showCreateGuide, setShowCreateGuide] = useState(false)
+  const [newGuideName, setNewGuideName] = useState('')
+  const [promptGuideId, setPromptGuideId] = useState('');
   useEffect(() => {
     getPrompts(setPromptGuides)
 
@@ -263,12 +267,13 @@ function Configuration() {
 
   function onPromptGuideChange(value) {
     console.log(`selected ${value}`);
+    setPromptGuideId(value)
     const isValid = (promptGuide) => promptGuide.id === value;
     promptGuides.findIndex(isValid);
     console.log(promptGuides.findIndex(isValid))
     console.log(promptGuides[promptGuides.findIndex(isValid)]);
     setCurrentGuide(promptGuides[promptGuides.findIndex(isValid)])
-
+    setEditIndex(null);
   }
 
   function onEditPrompt(idx) {
@@ -434,19 +439,90 @@ function Configuration() {
 
 
   }
+
+  function onShowNewGuide() {
+    setShowCreateGuide(true)
+    setCurrentGuide({})
+    setEditIndex(null)
+
+  }
+  async function onCreateNewGuide() {
+    console.log(newGuideName);
+    const newGuide = {
+      name: newGuideName,
+      prompts: [],
+    };
+    const url = '/api/prompt_guide'
+    const response = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newGuide),
+
+
+    })
+    console.log(response);
+    const responseData = await response.json();
+    console.log(responseData);
+    const { id } = responseData;
+    newGuide.id = id;
+    setPromptGuides((pg) => {
+      const npg = JSON.parse(JSON.stringify(pg));
+      npg.push(newGuide);
+      return (npg);
+    });
+    console.log(newGuide);
+    setCurrentGuide(newGuide);
+    setEditIndex(null);
+
+
+
+
+
+  }
+  function onCancelNewGuide() {
+    setShowCreateGuide(false)
+  }
+
+  function onGuideNameChange(event) {
+    const { value } = event.target;
+
+    setNewGuideName(value);
+
+  }
+
+  function onCancelNewGuide() {
+    setShowCreateGuide(false)
+  }
   return (
     <div>
       <h2>Prompt Configuration</h2>
       <NavBar />
+      {!showCreateGuide && (<>
+        <Select
+          placeholder="Select a Guide"
+          style={{
+            width: 420,
+          }}
+          value={promptGuideId}
+          onChange={onPromptGuideChange}
+          options={promptGuides.map((pg) => ({ "value": pg.id, "label": pg.name }))}
+        />
+        <Space />
+        <Button type="primary" onClick={onShowNewGuide}> Add Guide </Button>
+        <Space />
+      </>)}
 
-      <Select
-        placeholder="Select a Guide"
-        style={{
-          width: 420,
-        }}
-        onChange={onPromptGuideChange}
-        options={promptGuides.map((pg) => ({ "value": pg.id, "label": pg.name }))}
-      />
+      {showCreateGuide && (<>
+        <Space />
+        <Input id="name" value={newGuideName} onChange={onGuideNameChange} placeholder="Enter Guide Name" style={{ width: 420 }} />
+        <Button type="primary" onClick={onCreateNewGuide}> Create New Guide </Button>
+        <Button type="secondary" onClick={onCancelNewGuide}> Cancel</Button>
+
+      </>)}
+
       {/* {
         promptGuides[0] &&
         (
@@ -458,9 +534,17 @@ function Configuration() {
 
       <br />
       <p />
-      (currentGuide.prompts && (editIndex === null) && (<Table dataSource={currentGuide.prompts.map((p) => ({ ...p, key: p.title }))} columns={columns} />
-      <Button type="primary" onClick={onAddPrompt}> Add Prompt</Button>
-      ))
+
+
+      {currentGuide.prompts && (editIndex === null) && (
+        <>
+          <Table
+            dataSource={currentGuide.prompts.map((p) => ({ ...p, key: p.title }))}
+            columns={columns}
+          />
+          <Button type="primary" onClick={onAddPrompt}>Add Prompt</Button>
+        </>
+      )}
 
 
 
