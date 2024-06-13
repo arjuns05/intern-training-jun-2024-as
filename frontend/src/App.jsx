@@ -5,6 +5,8 @@ import { DownOutlined, SmileOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
 import { Select } from 'antd';
 import { Table } from "antd";
+import { Checkbox, Form, Input } from 'antd';
+import { Popconfirm, message } from "antd";
 
 import {
   BrowserRouter,
@@ -235,47 +237,24 @@ function Guide() {
 
 // };
 
-const columns = [
-  {
-    title: 'Description',
-    dataIndex: 'description',
-    key: 'description'
 
-
-  },
-  {
-    title: 'Tag',
-    dataIndex: 'tag',
-    key: 'tag'
-
-
-  },
-  {
-    title: 'Title',
-    dataIndex: 'title',
-    key: 'title'
-
-
-  },
-  {
-    title: 'Type',
-    dataIndex: 'type',
-    key: 'type'
-
-
-  },
-  {
-    title: 'Choices',
-    dataIndex: 'choices',
-    key: 'choices'
-
-
-  }
-]
 function Configuration() {
+
+  const confirm = (e) => {
+    console.log(e);
+    message.success('Click on Yes');
+  };
+  const cancel = (e) => {
+    console.log(e);
+    message.error('Click on No');
+  };
+
 
   const [currentGuide, setCurrentGuide] = useState({ prompts: [] })
   const [promptGuides, setPromptGuides] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editPrompt, setEditPrompt] = useState({})
+  const [promptForm] = Form.useForm()
   useEffect(() => {
     getPrompts(setPromptGuides)
 
@@ -291,6 +270,155 @@ function Configuration() {
     setCurrentGuide(promptGuides[promptGuides.findIndex(isValid)])
 
   }
+
+  function onEditPrompt(idx) {
+    console.log(idx);
+    setEditIndex(idx);
+    setEditPrompt(currentGuide.prompts[idx])
+    promptForm.setFieldsValue({ choices: '', ...currentGuide.prompts[idx] });
+
+    let currGuide = promptGuides[idx];
+    console.log(currGuide);
+
+    return (
+      currGuide
+
+    )
+
+
+
+
+
+  }
+  async function savePromptGuide(guide) {
+    const url = '/api/prompt_guide'
+    const response = await fetch(url, {
+      method: 'POST',
+      cache: "no-cache",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(guide),
+
+
+    })
+    console.log(response)
+    return response;
+
+  }
+  async function onDeletePrompt(idx) {
+    console.log(idx);
+
+
+    setCurrentGuide((cg) => {
+      const newGuide = JSON.parse(JSON.stringify(cg));
+      newGuide.prompts.splice(idx, 1);
+      return (newGuide);
+    });
+    const newGuide = JSON.parse(JSON.stringify(currentGuide));
+    newGuide.prompts.splice(idx, 1);
+    await savePromptGuide(newGuide);
+    getPrompts(setPromptGuides)
+
+  }
+  const columns = [
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description'
+
+
+    },
+    {
+      title: 'Tag',
+      dataIndex: 'tag',
+      key: 'tag'
+
+
+    },
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title'
+
+
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type'
+
+
+    },
+    {
+      title: 'Choices',
+      dataIndex: 'choices',
+      key: 'choices'
+
+
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_text, _record, idx) => (
+        <Space size="middle">
+
+
+
+
+          <Button key="editButton" type="link" onClick={() => onEditPrompt(idx)}> Edit </Button>
+          <Popconfirm title="Delete the prompt" description="Are you sure to delete this prompt?" onConfirm={() => onDeletePrompt(idx)} onCancel={cancel} okText="Yes" cancelText="No">
+            <Button key="deleteButton" type="link" danger>Delete</Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ]
+
+  async function postData(values) {
+
+    const response = await fetch('/api/prompt_guide', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(values),
+
+
+    })
+    let result = await response.json();
+    console.log(result);
+  }
+
+
+  const onFinish = async (values) => {
+    console.log('Success:', values);
+    // don't know what to pass in : postData();
+    //update currentGuide.prompts[idx]
+
+    setCurrentGuide((cg) => {
+      const ncg = JSON.parse(JSON.stringify(cg));
+      ncg.prompts[editIndex] = values;
+
+      return (ncg);
+
+
+    })
+    const ncg = JSON.parse(JSON.stringify(currentGuide));
+    ncg.prompts[editIndex] = values;
+    await savePromptGuide(ncg);
+    getPrompts(setPromptGuides)
+
+
+
+
+  };
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+
+  };
+
 
   return (
     <div>
@@ -316,10 +444,99 @@ function Configuration() {
 
       <br />
       <p />
-      <Table dataSource={currentGuide.prompts} columns={columns} />
+      <Table dataSource={currentGuide.prompts.map((p) => ({ ...p, key: p.title }))} columns={columns} />
+      {console.log(currentGuide.prompts[0])}
+      <p>
+        Edit Area
+      </p>
+      <p> {editIndex}</p>
+      <p> {JSON.stringify(editPrompt)}</p>
+      <Form
+        name="basic"
+        form={promptForm}
+        labelCol={{
+          span: 8,
+        }}
+        wrapperCol={{
+          span: 16,
+        }}
+        style={{
+          maxWidth: 600,
+        }}
+        initialValues={{
+          remember: true,
+        }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <Form.Item
+          label="Description"
+          name="description"
+
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Tag"
+          name="tag"
+
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Title"
+          name="title"
+
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item name="type" label="Select">
+          <Select
+            options={[
+              {
+                value: 'text',
+                label: 'text',
+              },
+              {
+                value: 'LongText',
+                label: 'LongText',
+              },
+              {
+                value: 'select',
+                label: 'select',
+              },
+            ]}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Choices"
+          name="choices"
+
+
+        >
+          <Input />
+        </Form.Item>
+
+
+
+
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
 
   );
+
 
 }
 
