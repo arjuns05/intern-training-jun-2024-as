@@ -409,6 +409,7 @@ function Configuration() {
     ncg.prompts[editIndex] = values;
     await savePromptGuide(ncg);
     getPrompts(setPromptGuides)
+    setEditIndex(null);
 
 
 
@@ -418,8 +419,21 @@ function Configuration() {
     console.log('Failed:', errorInfo);
 
   };
+  const defaultPrompt = {
+    title: '',
+    description: '',
+    type: 'text',
+    tag: '',
+    choices: '',
+  };
+  function onAddPrompt() {
+    const newIndex = currentGuide.prompts.length;
+
+    setEditIndex(newIndex);
+    promptForm.setFieldValue(defaultPrompt);
 
 
+  }
   return (
     <div>
       <h2>Prompt Configuration</h2>
@@ -444,95 +458,108 @@ function Configuration() {
 
       <br />
       <p />
-      <Table dataSource={currentGuide.prompts.map((p) => ({ ...p, key: p.title }))} columns={columns} />
-      {console.log(currentGuide.prompts[0])}
-      <p>
-        Edit Area
-      </p>
-      <p> {editIndex}</p>
-      <p> {JSON.stringify(editPrompt)}</p>
-      <Form
-        name="basic"
-        form={promptForm}
-        labelCol={{
-          span: 8,
-        }}
-        wrapperCol={{
-          span: 16,
-        }}
-        style={{
-          maxWidth: 600,
-        }}
-        initialValues={{
-          remember: true,
-        }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        autoComplete="off"
-      >
-        <Form.Item
-          label="Description"
-          name="description"
-
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Tag"
-          name="tag"
-
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Title"
-          name="title"
-
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item name="type" label="Select">
-          <Select
-            options={[
-              {
-                value: 'text',
-                label: 'text',
-              },
-              {
-                value: 'LongText',
-                label: 'LongText',
-              },
-              {
-                value: 'select',
-                label: 'select',
-              },
-            ]}
-          />
-        </Form.Item>
-        <Form.Item
-          label="Choices"
-          name="choices"
-
-
-        >
-          <Input />
-        </Form.Item>
+      (currentGuide.prompts && (editIndex === null) && (<Table dataSource={currentGuide.prompts.map((p) => ({ ...p, key: p.title }))} columns={columns} />
+      <Button type="primary" onClick={onAddPrompt}> Add Prompt</Button>
+      ))
 
 
 
 
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+
+
+      {((editIndex !== null) && (
+        <>
+
+          <Form
+            name="basic"
+            form={promptForm}
+            labelCol={{
+              span: 8,
+            }}
+            wrapperCol={{
+              span: 16,
+            }}
+            style={{
+              maxWidth: 600,
+            }}
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
+          >
+            <Form.Item
+              label="Description"
+              name="description"
+
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Tag"
+              name="tag"
+
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Title"
+              name="title"
+
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item name="type" label="Select">
+              <Select
+                options={[
+                  {
+                    value: 'text',
+                    label: 'text',
+                  },
+                  {
+                    value: 'LongText',
+                    label: 'LongText',
+                  },
+                  {
+                    value: 'select',
+                    label: 'select',
+                  },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Choices"
+              name="choices"
+
+
+            >
+              <Input />
+            </Form.Item>
+
+
+
+
+            <Form.Item
+              wrapperCol={{
+                offset: 8,
+                span: 16,
+              }}
+            >
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+              <Space />
+              <Button type="secondary" htmlType="button" onClick={() => setEditIndex(null)}>
+                Cancel
+              </Button>
+
+            </Form.Item>
+          </Form>
+        </>
+      ))}
+
     </div>
 
   );
