@@ -7,7 +7,7 @@ import { Select } from 'antd';
 import { Table } from "antd";
 import { Checkbox, Form, Input } from 'antd';
 import { Popconfirm, message } from "antd";
-
+const TextArea = Input
 import {
   BrowserRouter,
   Routes,
@@ -218,26 +218,138 @@ function Home() {
     </div>
   );
 }
+async function onPromptGuideChange(value) {
+  console.log(`selected ${value}`);
+  let req = await fetch(`/api/prompt_guide?prompt_id=${String(value)}`);
+  let data = await req.json()
+  console.log(data)
+
+
+
+
+};
+
 
 function Guide() {
+  const [promptGuides, setPromptGuides] = useState([]);
+  const [promptGuideId, setPromptGuideId] = useState('');
+  const [currentGuide, setCurrentGuide] = useState({});
+  const [currResponse, setCurrentResponse] = useState('');
+  useEffect(() => {
+    getPrompts(setPromptGuides);
+  }, []);
+  function onPromptGuideChange(value) {
+    console.log(value);
+    setPromptGuideId(value);
+    const guide = promptGuides.find((pg) => (pg.id === value));
+    console.log(guide);
+    setCurrentGuide(guide);
+
+  }
+  async function onFinish(values) {
+    console.log(values);
+    const sendGuide = JSON.parse(JSON.stringify(currentGuide));
+    const titles = Object.keys(values);
+    console.log(titles);
+    titles.forEach((title) => {
+      const prompt = sendGuide.prompts.find((p) => (p.title === title));
+      console.log({ title, prompt });
+      prompt.value = values[title];
+    });
+    console.log(sendGuide);
+    const toSend = JSON.stringify(sendGuide);
+    const url = '/api/send'
+    const response = await fetch(url, {
+      method: 'POST',
+      cache: "no-cache",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: toSend,
+
+
+    })
+
+    const responseData = await response.json();
+    console.log(JSON.stringify(responseData))
+    console.log(JSON.stringify(responseData.ai_response))
+    setCurrentResponse(JSON.stringify(responseData.ai_response));
+
+
+  }
+  function onFinishFailed() { }
+
   return (
     <div>
       <h2>Prompting Guide</h2>
       <NavBar />
+      <Select
+        placeholder="Select a Guide"
+        style={{
+          width: 420,
+        }}
+        value={promptGuideId}
+        onChange={onPromptGuideChange}
+        options={promptGuides.map((pg) => ({ value: pg.id, label: pg.name }))}
+      />
+      {currentGuide.prompts && (
+        <Form
+          name="basic"
+          labelCol={{
+            span: 8,
+          }}
+          wrapperCol={{
+            span: 16,
+          }}
+          style={{
+            maxWidth: 600,
+          }}
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          autoComplete="off"
+        >
+          {currentGuide.prompts.map((p) => (
+            <Form.Item
+              label={p.title}
+              name={p.title}
+            >
+              {(p.type === 'text') && (
+                <Input
+                  placeholder={p.description}
+                />
+              )}
+              {(p.type === 'long text') && (
+                <TextArea rows={4} placeholder={p.description} />
+              )}
+              {(p.type === 'select') && (
+                <Select
+                  placeholder={p.description}
+                  options={p.choices.split(',').map((ch) => ({ value: ch, label: ch }))}
+                />
+              )}
+            </Form.Item>
+          ))}
+          <Form.Item
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+      {currResponse !== '' && (
+        <p>AI Response: {currResponse} </p>
+      )}
     </div>
   );
 }
-// async function onPromptGuideChange(value) {
-//   console.log(`selected ${value}`);
-//   let req = await fetch(`/api/prompt_guide?prompt_id=${String(value)}`);
-//   let data = await req.json()
-//   console.log(data)
-
-
-
-
-// };
-
 
 function Configuration() {
 
@@ -303,7 +415,7 @@ function Configuration() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(guide),
+      body: 'Please disclude all escape sequences like /n' + JSON.stringify(guide),
 
 
     })
@@ -510,7 +622,7 @@ function Configuration() {
           onChange={onPromptGuideChange}
           options={promptGuides.map((pg) => ({ "value": pg.id, "label": pg.name }))}
         />
-        <Space />
+        {' '}
         <Button type="primary" onClick={onShowNewGuide}> Add Guide </Button>
         <Space />
       </>)}
