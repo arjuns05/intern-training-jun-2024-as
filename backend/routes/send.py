@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from utils.ai import send_ai_message
+
+# from utils.ai import send_ai_message
 
 router = APIRouter()
 
@@ -26,3 +27,24 @@ def conversion(state: dict):
     s = f"<{tag}> {value} </{tag}>"
 
     return s
+
+
+def create_message(state):
+    prompts = state.get("prompts")
+    output = ""
+    for prompt in prompts:
+        output += (
+            "<"
+            + prompt.get("tag")
+            + "> "
+            + prompt.get("value")
+            + " </"
+            + prompt.get("tag")
+            + ">"
+        )
+
+    # a slightly cleaner approach
+    # for prompt in prompts:
+    #     output += f"<{prompt.get('tag')}> {prompt.get('value')} </{prompt.get('tag')}>"
+
+    return output
